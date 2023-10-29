@@ -1,0 +1,48 @@
+version: "3.9"
+services:
+  web:
+    container_name: webapp1
+    build:
+      context: ./nodejs-notes-app
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      MONGODB_URI: ${MDB_URL}/local
+      PORT: "3000"
+      NODE_ENV: development
+    links:
+      - mongo
+    ports:
+      - "3000:3000"
+    networks:
+      - app
+      - database
+      
+  mongo:
+    container_name: mongo
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE : notesdb
+    volumes:
+         - ~/mongo-volume:/data/db
+    networks:
+      - database
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME : ""
+      ME_CONFIG_MONGODB_URL: ${MDB_URL}
+    networks:
+      - app
+      - database
+networks:
+  app:
+  database:
+
+volumes:
+  mongo-volume:
